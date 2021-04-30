@@ -77,6 +77,7 @@ func (r *ReconcilePod) Reconcile(ctx context.Context, req reconcile.Request) (re
 	if err != nil {
 		if errors.IsNotFound(err) {
 			log.Println("failed to retrieve pod, might be deleted")
+			delete(restartList, string(pod.UID))
 			return reconcile.Result{}, nil
 		}
 		return reconcile.Result{}, err
@@ -85,7 +86,7 @@ func (r *ReconcilePod) Reconcile(ctx context.Context, req reconcile.Request) (re
 	for i := range pod.Status.ContainerStatuses {
 		container := pod.Status.ContainerStatuses[i].Name
 		restartCount := pod.Status.ContainerStatuses[i].RestartCount
-		identifier := pod.Name + pod.Status.ContainerStatuses[i].Name
+		identifier := string(pod.UID)
 
 		if _, ok := restartList[identifier]; !ok {
 			restartList[identifier] = restartCount
