@@ -9,3 +9,12 @@ Before deploying, first update the `<slack webhook url>` in `deploy/deployment.y
 
 #### Run the following command to create a test pod
 ``kubectl create -f deploy/example-pod.yaml``
+
+### Usages
+
+Following Args can be passed to the controller deployment - 
+
+```
+--namespace string       namespace to be watched by the controller (default "pod-crash")
+--slack-webhook string   slack webhook URL to post notifications
+```
