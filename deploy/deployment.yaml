@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pod-crash
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pod-crash-notify
+  namesapce: pod-crash
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pod-crash-notify
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "watch", "list"]
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: pod-crash-notify
+subjects:
+- kind: ServiceAccount
+  name: pod-crash-notify
+  namespace: pod-crash
+roleRef:
+  kind: ClusterRole
+  name: pod-crash-notify
+  apiGroup: rbac.authorization.k8s.io
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pod-crash-notification-controller
+  namespace: pod-crash
+  labels:
+    app: pod-crash-notification-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pod-crash-notification-controller
+  template:
+    metadata:
+      labels:
+        app: pod-crash-notification-controller
+    spec:
+      containers:
+      - name: pod-crash-notification-controller
+        image: quay.io/shuagarw/pod-crash-controller:latest
+        imagePullPolicy: Always
+        args: [
+          "--slack-webhook",
+          "<slack webhook url>",
+        ]
+      serviceAccount: pod-crash-notify
+      serviceAccountName: pod-crash-notify

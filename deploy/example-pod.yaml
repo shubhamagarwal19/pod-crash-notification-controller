@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: crash-pod
+  namespace: pod-crash
+spec:
+  containers:
+  - name: test-crash-pod-container
+    image: ubuntu:latest
+    command: [ "/bin/bash", "-c", "--" ]
+    args: [ "sleep 15" ]
